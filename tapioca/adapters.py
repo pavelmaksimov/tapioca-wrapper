@@ -92,6 +92,9 @@ class TapiocaAdapter(object):
     def refresh_authentication(self, api_params, *args, **kwargs):
         raise NotImplementedError()
 
+    def retry_request_if_limit(self, response):
+        return False
+
 
 class FormAdapterMixin(object):
 
