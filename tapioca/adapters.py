@@ -1,7 +1,6 @@
 # coding: utf-8
 
 import json
-import xmltodict
 from collections import Mapping
 
 from .tapioca import TapiocaInstantiator
@@ -92,7 +91,7 @@ class TapiocaAdapter(object):
     def refresh_authentication(self, api_params, *args, **kwargs):
         raise NotImplementedError()
 
-    def retry_request_if_limit(self, response, *args, **kwargs):
+    def retry_request(self, response, api_params, *args, **kwargs):
         return False
 
 

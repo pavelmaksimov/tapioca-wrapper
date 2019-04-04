@@ -237,7 +237,8 @@ class TapiocaClientExecutor(TapiocaClient):
             tapioca_exception = e.tapioca_exception(message=error_message,
                                                     client=client)
 
-            if self._api.retry_request_if_limit(tapioca_exception, *args, **kwargs):
+            if self._api.retry_request(tapioca_exception, self._api_params,
+                                       *args, **kwargs):
                 return self._make_request(
                     request_method, refresh_token=refresh_token, *args, **kwargs)
 
