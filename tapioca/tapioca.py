@@ -199,6 +199,9 @@ class TapiocaClientExecutor(TapiocaClient):
     def __call__(self, *args, **kwargs):
         return self._wrap_in_tapioca(self._data.__call__(*args, **kwargs))
 
+    def to_df(self, *args, **kwargs):
+        return self._api.to_df(self._data, *args, **kwargs)
+
     @property
     def data(self):
         return self._data
@@ -237,7 +240,7 @@ class TapiocaClientExecutor(TapiocaClient):
             tapioca_exception = e.tapioca_exception(message=error_message,
                                                     client=client)
 
-            if self._api.retry_request(tapioca_exception, self._api_params,
+            if self._api.retry_request(response, tapioca_exception, self._api_params,
                                        *args, **kwargs):
                 return self._make_request(
                     request_method, refresh_token=refresh_token, *args, **kwargs)
@@ -256,7 +259,8 @@ class TapiocaClientExecutor(TapiocaClient):
                                               refresh_token=False, *args, **kwargs)
 
             if propagate_exception:
-                raise tapioca_exception
+                self._api.wrapper_call_exception(
+                    response, tapioca_exception, self._api_params, *args, **kwargs)
 
         return self._wrap_in_tapioca(data, response=response,
                                      request_kwargs=request_kwargs)

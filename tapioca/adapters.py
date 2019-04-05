@@ -3,10 +3,12 @@
 import json
 from collections import Mapping
 
-from .tapioca import TapiocaInstantiator
+import xmltodict
+
 from .exceptions import (
     ResponseProcessException, ClientError, ServerError)
 from .serializers import SimpleSerializer
+from .tapioca import TapiocaInstantiator
 
 
 def generate_wrapper_from_adapter(adapter_class):
@@ -91,8 +93,21 @@ class TapiocaAdapter(object):
     def refresh_authentication(self, api_params, *args, **kwargs):
         raise NotImplementedError()
 
-    def retry_request(self, response, api_params, *args, **kwargs):
+    def retry_request(self, response, tapioca_exception, api_params, *args, **kwargs):
+        """
+        Условия повторения запроса.
+
+        response = tapioca_exception.client().response
+        status_code = tapioca_exception.client().status_code
+        response_data = tapioca_exception.client().data
+        """
         return False
+
+    def wrapper_call_exception(self, response, tapioca_exception, api_params, *args, **kwargs):
+        """
+        Для вызова кастомных исключений
+        """
+        raise tapioca_exception
 
 
 class FormAdapterMixin(object):
@@ -130,6 +145,9 @@ class JSONAdapterMixin(object):
         if data:
             return data.get('error', None)
 
+    def to_df(self, data, *args, **kwargs):
+        """Преобразование в DataFrame"""
+        raise NotImplementedError()
 
 
 class XMLAdapterMixin(object):
