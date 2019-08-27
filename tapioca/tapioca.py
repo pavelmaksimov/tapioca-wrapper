@@ -14,23 +14,34 @@ from .exceptions import ResponseProcessException
 
 
 class TapiocaInstantiator(object):
-
     def __init__(self, adapter_class):
         self.adapter_class = adapter_class
 
     def __call__(self, serializer_class=None, session=None, **kwargs):
-        refresh_token_default = kwargs.pop('refresh_token_by_default', False)
+        refresh_token_default = kwargs.pop("refresh_token_by_default", False)
         return TapiocaClient(
             self.adapter_class(serializer_class=serializer_class),
-            api_params=kwargs, refresh_token_by_default=refresh_token_default,
-            session=session)
+            api_params=kwargs,
+            refresh_token_by_default=refresh_token_default,
+            session=session,
+        )
 
 
 class TapiocaClient(object):
-
-    def __init__(self, api, data=None, response=None, request_kwargs=None,
-                 api_params=None, resource=None, refresh_token_by_default=False,
-                 refresh_data=None, session=None, *args, **kwargs):
+    def __init__(
+        self,
+        api,
+        data=None,
+        response=None,
+        request_kwargs=None,
+        api_params=None,
+        resource=None,
+        refresh_token_by_default=False,
+        refresh_data=None,
+        session=None,
+        *args,
+        **kwargs
+    ):
         self._api = api
         self._data = data
         self._response = response
@@ -45,35 +56,43 @@ class TapiocaClient(object):
         serializer_class = None
         if self._api.serializer:
             serializer_class = self._api.serializer.__class__
-        return self._api.__class__(
-            serializer_class=serializer_class)
+        return self._api.__class__(serializer_class=serializer_class)
 
     def _wrap_in_tapioca(self, data, *args, **kwargs):
-        request_kwargs = kwargs.pop('request_kwargs', self._request_kwargs)
-        return TapiocaClient(self._instatiate_api(), data=data,
-                             api_params=self._api_params,
-                             request_kwargs=request_kwargs,
-                             refresh_token_by_default=self._refresh_token_default,
-                             refresh_data=self._refresh_data,
-                             session=self._session,
-                             *args, **kwargs)
+        request_kwargs = kwargs.pop("request_kwargs", self._request_kwargs)
+        return TapiocaClient(
+            self._instatiate_api(),
+            data=data,
+            api_params=self._api_params,
+            request_kwargs=request_kwargs,
+            refresh_token_by_default=self._refresh_token_default,
+            refresh_data=self._refresh_data,
+            session=self._session,
+            *args,
+            **kwargs
+        )
 
     def _wrap_in_tapioca_executor(self, data, *args, **kwargs):
-        request_kwargs = kwargs.pop('request_kwargs', self._request_kwargs)
-        return TapiocaClientExecutor(self._instatiate_api(), data=data,
-                                     api_params=self._api_params,
-                                     request_kwargs=request_kwargs,
-                                     refresh_token_by_default=self._refresh_token_default,
-                                     refresh_data=self._refresh_data,
-                                     session=self._session,
-                                     *args, **kwargs)
+        request_kwargs = kwargs.pop("request_kwargs", self._request_kwargs)
+        return TapiocaClientExecutor(
+            self._instatiate_api(),
+            data=data,
+            api_params=self._api_params,
+            request_kwargs=request_kwargs,
+            refresh_token_by_default=self._refresh_token_default,
+            refresh_data=self._refresh_data,
+            session=self._session,
+            *args,
+            **kwargs
+        )
 
     def _get_doc(self):
         resources = copy.copy(self._resource)
-        docs = ("Automatic generated __doc__ from resource_mapping.\n"
-                "Resource: %s\n"
-                "Docs: %s\n" % (resources.pop('resource', ''),
-                                resources.pop('docs', '')))
+        docs = (
+            "Automatic generated __doc__ from resource_mapping.\n"
+            "Resource: %s\n"
+            "Docs: %s\n" % (resources.pop("resource", ""), resources.pop("docs", ""))
+        )
         for key, value in sorted(resources.items()):
             docs += "%s: %s\n" % (key.title(), value)
         docs = docs.strip()
@@ -84,26 +103,33 @@ class TapiocaClient(object):
     def __call__(self, *args, **kwargs):
         data = self._data
 
-        url_params = self._api_params.get('default_url_params', {})
+        url_params = self._api_params.get("default_url_params", {})
         url_params.update(kwargs)
         if self._resource and url_params:
             data = self._api.fill_resource_template_url(self._data, url_params)
 
-        return self._wrap_in_tapioca_executor(data, resource=self._resource,
-                                              response=self._response)
+        return self._wrap_in_tapioca_executor(
+            data, resource=self._resource, response=self._response
+        )
+
     """
     Convert a snake_case string in CamelCase.
     http://stackoverflow.com/questions/19053707/convert-snake-case-snake-case-to-lower-camel-case-lowercamelcase-in-python
     """
+
     def _to_camel_case(self, name):
         if isinstance(name, int):
             return name
-        components = name.split('_')
+        components = name.split("_")
         return components[0] + "".join(x.title() for x in components[1:])
 
     def _get_client_from_name(self, name):
-        if (isinstance(self._data, list) and isinstance(name, int) or
-                hasattr(self._data, '__iter__') and name in self._data):
+        if (
+            isinstance(self._data, list)
+            and isinstance(name, int)
+            or hasattr(self._data, "__iter__")
+            and name in self._data
+        ):
             return self._wrap_in_tapioca(data=self._data[name])
 
         # if could not access, falback to resource mapping
@@ -112,7 +138,7 @@ class TapiocaClient(object):
             resource = resource_mapping[name]
             api_root = self._api.get_api_root(self._api_params)
 
-            url = api_root.rstrip('/') + '/' + resource['resource'].lstrip('/')
+            url = api_root.rstrip("/") + "/" + resource["resource"].lstrip("/")
             return self._wrap_in_tapioca(url, resource=resource)
 
         return None
@@ -159,15 +185,16 @@ class TapiocaClient(object):
 
     def __str__(self):
         if type(self._data) == OrderedDict:
-            return ("<{} object, printing as dict:\n"
-                    "{}>").format(
-                self.__class__.__name__, json.dumps(self._data, indent=4))
+            return ("<{} object, printing as dict:\n" "{}>").format(
+                self.__class__.__name__, json.dumps(self._data, indent=4)
+            )
         else:
             import pprint
+
             pp = pprint.PrettyPrinter(indent=4)
-            return ("<{} object\n"
-                    "{}>").format(
-                self.__class__.__name__, pp.pformat(self._data))
+            return ("<{} object\n" "{}>").format(
+                self.__class__.__name__, pp.pformat(self._data)
+            )
 
     def _repr_pretty_(self, p, cycle):
         p.text(self.__str__())
@@ -180,19 +207,19 @@ class TapiocaClient(object):
 
 
 class TapiocaClientExecutor(TapiocaClient):
-
     def __init__(self, api, *args, **kwargs):
         super(TapiocaClientExecutor, self).__init__(api, *args, **kwargs)
 
     def __getitem__(self, key):
-        raise Exception("This operation cannot be done on a" +
-                        " TapiocaClientExecutor object")
+        raise Exception(
+            "This operation cannot be done on a" + " TapiocaClientExecutor object"
+        )
 
     def __iter__(self):
         raise Exception("Cannot iterate over a TapiocaClientExecutor object")
 
     def __getattr__(self, name):
-        if name.startswith('to_'):  # deserializing
+        if name.startswith("to_"):  # deserializing
             return self._api._get_to_native_method(name, self._data)
         return self._wrap_in_tapioca_executor(getattr(self._data, name))
 
@@ -221,77 +248,107 @@ class TapiocaClientExecutor(TapiocaClient):
         return self._refresh_data
 
     def _make_request(self, request_method, refresh_token=None, *args, **kwargs):
-        if 'url' not in kwargs:
-            kwargs['url'] = self._data
+        if "url" not in kwargs:
+            kwargs["url"] = self._data
 
-        request_kwargs = self._api.get_request_kwargs(
-            self._api_params, request_method, *args, **kwargs)
+        request_kwargs_list = self._api.generate_request_kwargs(
+            self._api_params, request_method, *args, **kwargs
+        )
 
-        response = self._session.request(request_method, **request_kwargs)
+        results = []
+        count_request_error = 0
+        while request_kwargs_list:
+            current_request_kwargs = request_kwargs_list.pop(0)
+            response = self._session.request(request_method, **current_request_kwargs)
+            try:
+                result = self._api.process_response(response)
+            except ResponseProcessException as e:
+                count_request_error += 1
+                client = self._wrap_in_tapioca(
+                    e.data, response=response, request_kwargs=current_request_kwargs
+                )
+                error_message = self._api.get_error_message(
+                    data=e.data, response=response
+                )
+                tapioca_exception = e.tapioca_exception(
+                    message=error_message, client=client
+                )
+                retry_ = self._api.retry_request(
+                    response,
+                    tapioca_exception,
+                    self._api_params,
+                    count_request_error,
+                    *args,
+                    **kwargs
+                )
 
-        try:
-            data = self._api.process_response(response)
-        except ResponseProcessException as e:
-            client = self._wrap_in_tapioca(e.data, response=response,
-                                           request_kwargs=request_kwargs)
+                if retry_:
+                    request_kwargs_list.append(current_request_kwargs)
+                else:
+                    should_refresh_token = (
+                        refresh_token is not False and self._refresh_token_default
+                    )
+                    auth_expired = self._api.is_authentication_expired(
+                        tapioca_exception
+                    )
 
-            error_message = self._api.get_error_message(data=e.data,
-                                                        response=response)
-            tapioca_exception = e.tapioca_exception(message=error_message,
-                                                    client=client)
+                    propagate_exception = True
 
-            if self._api.retry_request(response, tapioca_exception, self._api_params,
-                                       *args, **kwargs):
-                return self._make_request(
-                    request_method, refresh_token=refresh_token, *args, **kwargs)
+                    if should_refresh_token and auth_expired:
+                        self._refresh_data = self._api.refresh_authentication(
+                            self._api_params
+                        )
+                        if self._refresh_data:
+                            propagate_exception = False
+                            return self._make_request(
+                                request_method, refresh_token=False, *args, **kwargs
+                            )
 
-            should_refresh_token = (refresh_token is not False and
-                                    self._refresh_token_default)
-            auth_expired = self._api.is_authentication_expired(tapioca_exception)
+                    if propagate_exception:
+                        self._api.wrapper_call_exception(
+                            response,
+                            tapioca_exception,
+                            self._api_params,
+                            *args,
+                            **kwargs
+                        )
+            else:
+                results.append(result)
+                request_kwargs_list = self._api.extra_request(
+                    current_request_kwargs, request_kwargs_list, response, result
+                )
 
-            propagate_exception = True
-
-            if should_refresh_token and auth_expired:
-                self._refresh_data = self._api.refresh_authentication(self._api_params)
-                if self._refresh_data:
-                    propagate_exception = False
-                    return self._make_request(request_method,
-                                              refresh_token=False, *args, **kwargs)
-
-            if propagate_exception:
-                self._api.wrapper_call_exception(
-                    response, tapioca_exception, self._api_params, *args, **kwargs)
-
-        return self._wrap_in_tapioca(data, response=response,
-                                     request_kwargs=request_kwargs)
+        return self._wrap_in_tapioca(
+            results, response=response, request_kwargs=current_request_kwargs
+        )
 
     def get(self, *args, **kwargs):
-        return self._make_request('GET', *args, **kwargs)
+        return self._make_request("GET", *args, **kwargs)
 
     def post(self, *args, **kwargs):
-        return self._make_request('POST', *args, **kwargs)
+        return self._make_request("POST", *args, **kwargs)
 
     def options(self, *args, **kwargs):
-        return self._make_request('OPTIONS', *args, **kwargs)
-    
+        return self._make_request("OPTIONS", *args, **kwargs)
+
     def put(self, *args, **kwargs):
-        return self._make_request('PUT', *args, **kwargs)
+        return self._make_request("PUT", *args, **kwargs)
 
     def patch(self, *args, **kwargs):
-        return self._make_request('PATCH', *args, **kwargs)
+        return self._make_request("PATCH", *args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        return self._make_request('DELETE', *args, **kwargs)
+        return self._make_request("DELETE", *args, **kwargs)
 
     def _get_iterator_list(self):
         return self._api.get_iterator_list(self._data)
 
     def _get_iterator_next_request_kwargs(self):
         return self._api.get_iterator_next_request_kwargs(
-            self._request_kwargs, self._data, self._response)
+            self._request_kwargs, self._data, self._response
+        )
 
-    def _reached_max_limits(self, page_count, item_count, max_pages,
-                            max_items):
+    def _reached_max_limits(self, page_count, item_count, max_pages, max_items):
         reached_page_limit = max_pages is not None and max_pages <= page_count
         reached_item_limit = max_items is not None and max_items <= item_count
         return reached_page_limit or reached_item_limit
@@ -303,12 +360,12 @@ class TapiocaClientExecutor(TapiocaClient):
         item_count = 0
 
         while iterator_list:
-            if self._reached_max_limits(page_count, item_count, max_pages,
-                                        max_items):
+            if self._reached_max_limits(page_count, item_count, max_pages, max_items):
                 break
             for item in iterator_list:
-                if self._reached_max_limits(page_count, item_count, max_pages,
-                                            max_items):
+                if self._reached_max_limits(
+                    page_count, item_count, max_pages, max_items
+                ):
                     break
                 yield self._wrap_in_tapioca(item)
                 item_count += 1
@@ -329,14 +386,16 @@ class TapiocaClientExecutor(TapiocaClient):
             raise KeyError()
 
         new = 2  # open in new tab
-        webbrowser.open(self._resource['docs'], new=new)
+        webbrowser.open(self._resource["docs"], new=new)
 
     def open_in_browser(self):
         new = 2  # open in new tab
         webbrowser.open(self._data, new=new)
 
     def __dir__(self):
-        methods = [m for m in TapiocaClientExecutor.__dict__.keys() if not m.startswith('_')]
-        methods += [m for m in dir(self._api.serializer) if m.startswith('to_')]
+        methods = [
+            m for m in TapiocaClientExecutor.__dict__.keys() if not m.startswith("_")
+        ]
+        methods += [m for m in dir(self._api.serializer) if m.startswith("to_")]
 
         return methods

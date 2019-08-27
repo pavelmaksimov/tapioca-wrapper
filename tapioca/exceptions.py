@@ -30,3 +30,9 @@ class ServerError(TapiocaException):
 
     def __init__(self, message='', client=None):
         super(ServerError, self).__init__(message, client=client)
+
+
+class NotFound404Error(TapiocaException):
+
+    def __init__(self, message='Ошибка 404 не найдена страница', client=None):
+        super(NotFound404Error, self).__init__(message, client=client)
