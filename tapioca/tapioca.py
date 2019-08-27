@@ -292,26 +292,22 @@ class TapiocaClientExecutor(TapiocaClient):
                         tapioca_exception
                     )
 
-                    propagate_exception = True
-
                     if should_refresh_token and auth_expired:
                         self._refresh_data = self._api.refresh_authentication(
                             self._api_params
                         )
                         if self._refresh_data:
-                            propagate_exception = False
                             return self._make_request(
                                 request_method, refresh_token=False, *args, **kwargs
                             )
 
-                    if propagate_exception:
-                        self._api.wrapper_call_exception(
-                            response,
-                            tapioca_exception,
-                            self._api_params,
-                            *args,
-                            **kwargs
-                        )
+                    self._api.wrapper_call_exception(
+                        response,
+                        tapioca_exception,
+                        self._api_params,
+                        *args,
+                        **kwargs
+                    )
             else:
                 results.append(result)
                 request_kwargs_list = self._api.extra_request(
