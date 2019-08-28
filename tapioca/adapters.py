@@ -191,6 +191,10 @@ class JSONAdapterMixin(object):
         """Преобразование в DataFrame"""
         raise NotImplementedError()
 
+    def transform(self, data, request_kwargs, *args, **kwargs):
+        """Преобразование данных"""
+        raise NotImplementedError()
+
 
 class XMLAdapterMixin(object):
     def _input_branches_to_xml_bytestring(self, data):
