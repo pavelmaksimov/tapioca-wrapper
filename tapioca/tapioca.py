@@ -226,6 +226,9 @@ class TapiocaClientExecutor(TapiocaClient):
     def __call__(self, *args, **kwargs):
         return self._wrap_in_tapioca(self._data.__call__(*args, **kwargs))
 
+    def transform(self, *args, **kwargs):
+        return self._api.transform(self._data, *args, **kwargs)
+
     def to_df(self, *args, **kwargs):
         return self._api.to_df(self._data, *args, **kwargs)
 
@@ -261,7 +264,7 @@ class TapiocaClientExecutor(TapiocaClient):
             current_request_kwargs = request_kwargs_list.pop(0)
             response = self._session.request(request_method, **current_request_kwargs)
             try:
-                result = self._api.process_response(response)
+                result = self._api.process_response(response, **current_request_kwargs)
             except ResponseProcessException as e:
                 count_request_error += 1
                 client = self._wrap_in_tapioca(

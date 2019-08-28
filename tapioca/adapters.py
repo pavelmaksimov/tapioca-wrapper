@@ -68,7 +68,7 @@ class TapiocaAdapter(object):
     def get_error_message(self, data, response=None):
         return str(data)
 
-    def process_response(self, response):
+    def process_response(self, response, **request_kwargs):
         if response.status_code == 404:
             raise ResponseProcessException(NotFound404Error, None)
         elif 500 <= response.status_code < 600:
