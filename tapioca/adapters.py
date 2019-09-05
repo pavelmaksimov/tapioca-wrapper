@@ -137,7 +137,7 @@ class TapiocaAdapter(object):
         raise tapioca_exception
 
     def extra_request(
-        self, current_request_kwargs, request_kwargs_list, response, current_result
+        self, api_params, current_request_kwargs, request_kwargs_list, response, current_result
     ):
         """
         Дополнительные запросы.

@@ -314,11 +314,17 @@ class TapiocaClientExecutor(TapiocaClient):
             else:
                 results.append(result)
                 request_kwargs_list = self._api.extra_request(
-                    current_request_kwargs, request_kwargs_list, response, result
+                    self._api_params,
+                    current_request_kwargs,
+                    request_kwargs_list,
+                    response,
+                    result
                 )
 
         return self._wrap_in_tapioca(
-            results, response=response, request_kwargs=current_request_kwargs
+            results,
+            response=response,
+            request_kwargs=current_request_kwargs
         )
 
     def get(self, *args, **kwargs):
