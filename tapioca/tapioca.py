@@ -227,10 +227,10 @@ class TapiocaClientExecutor(TapiocaClient):
         return self._wrap_in_tapioca(self._data.__call__(*args, **kwargs))
 
     def transform(self, *args, **kwargs):
-        return self._api.transform(self._data, self._request_kwargs, *args, **kwargs)
+        return self._api.transform(self._data, self._request_kwargs, self.response, self._api_params, *args, **kwargs)
 
     def to_df(self, *args, **kwargs):
-        return self._api.to_df(self._data, self._request_kwargs, *args, **kwargs)
+        return self._api.to_df(self._data, self._request_kwargs, self.response, self._api_params, *args, **kwargs)
 
     @property
     def data(self):
