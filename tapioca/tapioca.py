@@ -234,7 +234,7 @@ class TapiocaClientExecutor(TapiocaClient):
 
     @property
     def data(self):
-        return self._data
+        return self._api.data(self._data, self._request_kwargs, self.response, self._api_params)
 
     @property
     def response(self):

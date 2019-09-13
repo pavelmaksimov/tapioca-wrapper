@@ -187,6 +187,9 @@ class JSONAdapterMixin(object):
         if data:
             return data.get("error", None)
 
+    def data(self, data, request_kwargs, response, api_params):
+        return data
+
     def to_df(self, data, request_kwargs, response, api_params, *args, **kwargs):
         """Преобразование в DataFrame"""
         raise NotImplementedError()
