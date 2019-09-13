@@ -3,12 +3,12 @@
 from __future__ import unicode_literals
 
 import copy
+import json
+import webbrowser
+from collections import OrderedDict
+from pprint import pprint
 
 import requests
-import webbrowser
-
-import json
-from collections import OrderedDict
 
 from .exceptions import ResponseProcessException
 
@@ -396,6 +396,12 @@ class TapiocaClientExecutor(TapiocaClient):
     def open_in_browser(self):
         new = 2  # open in new tab
         webbrowser.open(self._data, new=new)
+
+    def info(self):
+        print("Документация: {}".format(self._resource["docs"]))
+        print("Путь ресурса^ {}".format(self._resource["resource"]))
+        print("Возможные query параметры:")
+        pprint(self._resource.get("params"))
 
     def __dir__(self):
         methods = [
