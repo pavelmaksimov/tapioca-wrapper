@@ -402,7 +402,7 @@ class TapiocaClientExecutor(TapiocaClient):
             raise KeyError()
 
         print("Документация: {}".format(self._resource["docs"]))
-        print("Путь ресурса^ {}".format(self._resource["resource"]))
+        print("Путь ресурса: {}".format(self._resource["resource"]))
         print("Описание:")
         print(self._resource.get("description", "не задокументировано"))
         print("Доступные HTTP методы:")
