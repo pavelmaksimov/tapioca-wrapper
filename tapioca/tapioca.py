@@ -398,10 +398,15 @@ class TapiocaClientExecutor(TapiocaClient):
         webbrowser.open(self._data, new=new)
 
     def info(self):
+        if not self._resource:
+            raise KeyError()
+
         print("Документация: {}".format(self._resource["docs"]))
         print("Путь ресурса^ {}".format(self._resource["resource"]))
+        print("Описание:")
+        print(self._resource.get("description", "не задокументировано"))
         print("Доступные HTTP методы:")
-        pprint(self._resource.get("methods", "не задокументировано"))
+        print(self._resource.get("methods", "не задокументировано"))
         print("Доступные query параметры:")
         pprint(self._resource.get("params", "не задокументировано"))
 
