@@ -400,8 +400,10 @@ class TapiocaClientExecutor(TapiocaClient):
     def info(self):
         print("Документация: {}".format(self._resource["docs"]))
         print("Путь ресурса^ {}".format(self._resource["resource"]))
-        print("Возможные query параметры:")
-        pprint(self._resource.get("params"))
+        print("Доступные HTTP методы:")
+        pprint(self._resource.get("methods", "не задокументировано"))
+        print("Доступные query параметры:")
+        pprint(self._resource.get("params", "не задокументировано"))
 
     def __dir__(self):
         methods = [
