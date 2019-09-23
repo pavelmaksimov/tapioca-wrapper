@@ -184,17 +184,20 @@ class TapiocaClient(object):
         return []
 
     def __str__(self):
-        if type(self._data) == OrderedDict:
-            return ("<{} object, printing as dict:\n" "{}>").format(
-                self.__class__.__name__, json.dumps(self._data, indent=4)
-            )
-        else:
-            import pprint
+        try:
+            return self._api.__str__(self._data, self._request_kwargs, self._response, self._api_params)
+        except NotImplementedError:
+            if type(self._data) == OrderedDict:
+                return ("<{} object, printing as dict:\n" "{}>").format(
+                    self.__class__.__name__, json.dumps(self._data, indent=4)
+                )
+            else:
+                import pprint
 
-            pp = pprint.PrettyPrinter(indent=4)
-            return ("<{} object\n" "{}>").format(
-                self.__class__.__name__, pp.pformat(self._data)
-            )
+                pp = pprint.PrettyPrinter(indent=4)
+                return ("<{} object\n" "{}>").format(
+                    self.__class__.__name__, pp.pformat(self._data)
+                )
 
     def _repr_pretty_(self, p, cycle):
         p.text(self.__str__())
@@ -236,6 +239,9 @@ class TapiocaClientExecutor(TapiocaClient):
     def data(self):
         return self._api.data(self._data, self._request_kwargs, self.response, self._api_params)
 
+    def json(self, *args, **kwargs):
+        return self._api.json(self._data, self._request_kwargs, self.response, self._api_params, *args, **kwargs)
+
     @property
     def response(self):
         if self._response is None:
@@ -259,6 +265,8 @@ class TapiocaClientExecutor(TapiocaClient):
         )
 
         results = []
+        responses = []
+        requests_kwargs = []
         count_request_error = 0
         while request_kwargs_list:
             current_request_kwargs = request_kwargs_list.pop(0)
@@ -313,6 +321,8 @@ class TapiocaClientExecutor(TapiocaClient):
                     )
             else:
                 results.append(result)
+                responses.append(response)
+                requests_kwargs.append(current_request_kwargs)
                 request_kwargs_list = self._api.extra_request(
                     self._api_params,
                     current_request_kwargs,
@@ -322,7 +332,7 @@ class TapiocaClientExecutor(TapiocaClient):
                 )
 
         return self._wrap_in_tapioca(
-            results,
+            self._api.transform_results(results, requests_kwargs, responses, self._api_params),
             response=response,
             request_kwargs=current_request_kwargs
         )

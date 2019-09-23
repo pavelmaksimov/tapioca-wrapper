@@ -152,6 +152,9 @@ class TapiocaAdapter(object):
         """
         return request_kwargs_list
 
+    def __str__(self, data, request_kwargs, response, api_params):
+        raise NotImplementedError()
+
 
 class FormAdapterMixin(object):
     def format_data_to_request(self, data):
@@ -187,7 +190,16 @@ class JSONAdapterMixin(object):
         if data:
             return data.get("error", None)
 
-    def data(self, data, request_kwargs, response, api_params):
+    def transform_results(self, results, request_kwargs, response, api_params):
+        """Преобразует данные после получения всех ответов"""
+        return results
+
+    def data(self, data, request_kwargs, response, api_params, *args, **kwargs):
+        """Преобразует данные в json"""
+        return data
+
+    def json(self, data, request_kwargs, response, api_params, *args, **kwargs):
+        """Преобразует данные в json"""
         return data
 
     def to_df(self, data, request_kwargs, response, api_params, *args, **kwargs):
@@ -195,7 +207,7 @@ class JSONAdapterMixin(object):
         raise NotImplementedError()
 
     def transform(self, data, request_kwargs, response, api_params, *args, **kwargs):
-        """Преобразование данных"""
+        """Кастомное преобразование данных"""
         raise NotImplementedError()
 
 
@@ -216,13 +228,13 @@ class XMLAdapterMixin(object):
     def get_request_kwargs(self, api_params, *args, **kwargs):
         # stores kwargs prefixed with 'xmltodict_unparse__' for use by xmltodict.unparse
         self._xmltodict_unparse_kwargs = {
-            k[len("xmltodict_unparse__") :]: kwargs.pop(k)
+            k[len("xmltodict_unparse__"):]: kwargs.pop(k)
             for k in kwargs.copy().keys()
             if k.startswith("xmltodict_unparse__")
         }
         # stores kwargs prefixed with 'xmltodict_parse__' for use by xmltodict.parse
         self._xmltodict_parse_kwargs = {
-            k[len("xmltodict_parse__") :]: kwargs.pop(k)
+            k[len("xmltodict_parse__"):]: kwargs.pop(k)
             for k in kwargs.copy().keys()
             if k.startswith("xmltodict_parse__")
         }
