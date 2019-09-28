@@ -198,7 +198,7 @@ class JSONAdapterMixin(object):
         """Преобразует данные в json"""
         return data
 
-    def json(self, data, request_kwargs, response, api_params, *args, **kwargs):
+    def to_json(self, data, request_kwargs, response, api_params, *args, **kwargs):
         """Преобразует данные в json"""
         return data
 
