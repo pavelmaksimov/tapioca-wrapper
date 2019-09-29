@@ -152,7 +152,7 @@ class TapiocaAdapter(object):
         """
         return request_kwargs_list
 
-    def __str__(self, data, request_kwargs, response, api_params):
+    def __str__(self, data=None, request_kwargs=None, response=None, api_params=None):
         raise NotImplementedError()
 
 
