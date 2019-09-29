@@ -21,6 +21,7 @@ def generate_wrapper_from_adapter(adapter_class):
 
 class TapiocaAdapter(object):
     serializer_class = SimpleSerializer
+    api_root = NotImplementedError
 
     def __init__(self, serializer_class=None, *args, **kwargs):
         if serializer_class:
