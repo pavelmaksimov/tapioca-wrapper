@@ -331,8 +331,13 @@ class TapiocaClientExecutor(TapiocaClient):
                     result
                 )
 
+        data = self._api.transform_results(
+            results, requests_kwargs or [current_request_kwargs],
+            responses or [response],
+            self._api_params
+        )
         return self._wrap_in_tapioca(
-            self._api.transform_results(results, requests_kwargs, responses, self._api_params),
+            data,
             response=response,
             request_kwargs=current_request_kwargs
         )
