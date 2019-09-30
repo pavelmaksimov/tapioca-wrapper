@@ -191,7 +191,7 @@ class JSONAdapterMixin(object):
         if data:
             return data.get("error", None)
 
-    def transform_results(self, results, request_kwargs, response, api_params):
+    def transform_results(self, results, requests_kwargs, responses, api_params):
         """Преобразует данные после получения всех ответов"""
         return results
 
